@@ -16,5 +16,6 @@ var cl = (function () {
     }
 })();
 
-for($i=0;$i < 2500;$i++)
+var cnt = process.argv[2] ? process.argv[2] : 1
+for($i=0;$i < cnt;$i++)
   cl();

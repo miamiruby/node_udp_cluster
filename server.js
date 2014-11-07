@@ -1,21 +1,26 @@
 //NODE_DEBUG=cluster node server.js
 var cluster = require('cluster');
-var http = require('http');
 var numCPUs = require('os').cpus().length;
 var nconf = require('nconf');
+var winston = require('winston');
+
 var config = nconf
 config.argv()
       .env()
       .file({ file: './config.json' });
-
-
 
 //console.log('name: ' + config.get('name'));
 //console.log('NODE_ENV: ' + config.get('NODE_ENV'));
 //console.log('database: ' + config.get('database:name'));
 //process.exit(1);
 
-var winston = require('winston');
+var logger = new (winston.Logger)({
+  transports: [
+    new (winston.transports.Console)(),
+    new (winston.transports.File)({ filename: './logs/'+ config.get('NODE_ENV')+ '.log' })
+  ]
+});
+
 var logger = new (winston.Logger)({
   transports: [
     new (winston.transports.Console)(),
