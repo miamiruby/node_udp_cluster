@@ -47,7 +47,7 @@ if (cluster.isMaster) {
 
   server.on('message', function (message, remote) {
     //winston.profile('worker');
-    var header = 'Worker ' + cluster.worker.id + ': ' + remote.address + ':' + remote.port +' - ';
+    var header = 'Worker ' + cluster.worker.id + ': ' + remote.address + ':' + remote.port +' -> ';
     var content = 'c: ';
     var results = [];
     results['raw'] = '';
@@ -60,7 +60,8 @@ if (cluster.isMaster) {
           //remote end of packet
           if(message[i] != '41')
             content += '  ' + message[i];
-    logger.info(header);
+    results['raw']  = results['raw'].substring(0, results['raw'].length - 1)
+    logger.info(header + results['raw']);
     //winston.profile('Worker '+cluster.worker.id);
     //logger.info(results);
   });
