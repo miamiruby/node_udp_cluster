@@ -1,4 +1,5 @@
 .env
 config.yml
 config.json
-logs
+logs/*
+npm-debug.log
