@@ -12,8 +12,6 @@ nconf.set('database:name', 'gateway_dev');
 nconf.set('database:username', 'gateway_dev');
 nconf.set('database:password', 'chocolate');
 
-console.log(nconf.get('database'));
-
 nconf.save(function (err) {
   if (err) {
     console.error(err.message);
