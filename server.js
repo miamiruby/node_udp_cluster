@@ -54,7 +54,6 @@ if (cluster.isMaster) {
 
   server.on('message', function (message, remote) {
     var data = gprs.decrypt(message)
-    logger.info('m type: ' + typeof message)
     logger.info('m: ' + message)
     logger.info('Worker ' + cluster.worker.id + ': ' + remote.address + ':' + remote.port +' -> ' + JSON.stringify(data, null, 2));
     //logger.info('Worker ' + cluster.worker.id + ': ' + remote.address + ':' + remote.port +' -> ' + data);
