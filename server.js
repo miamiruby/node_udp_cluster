@@ -3,6 +3,8 @@ var cluster = require('cluster');
 var numCPUs = require('os').cpus().length;
 var nconf = require('nconf');
 var winston = require('winston');
+var gprs = require("./gprs");
+
 
 var config = nconf
 config.argv()
@@ -51,24 +53,11 @@ if (cluster.isMaster) {
   });
 
   server.on('message', function (message, remote) {
-    //winston.profile('worker');
-    var header = 'Worker ' + cluster.worker.id + ': ' + remote.address + ':' + remote.port +' -> ';
-    var content = 'c: ';
-    var results = [];
-    results['raw'] = '';
-    for (var i = 0; i < message.length; i++)
-      results['raw'] += message[i] + ',';
-      //remote ENTER characters
-      if(message[i] != '13')
-        //remote start of packet
-        if(message[i] != '40')
-          //remote end of packet
-          if(message[i] != '41')
-            content += '  ' + message[i];
-    results['raw']  = results['raw'].substring(0, results['raw'].length - 1)
-    logger.info(header + results['raw']);
-    //winston.profile('Worker '+cluster.worker.id);
-    //logger.info(results);
+    var data = gprs.decrypt(message)
+    logger.info('m type: ' + typeof message)
+    logger.info('m: ' + message)
+    logger.info('Worker ' + cluster.worker.id + ': ' + remote.address + ':' + remote.port +' -> ' + JSON.stringify(data, null, 2));
+    //logger.info('Worker ' + cluster.worker.id + ': ' + remote.address + ':' + remote.port +' -> ' + data);
   });
 
   server.bind(PORT);

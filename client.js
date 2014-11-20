@@ -5,7 +5,10 @@ var cl = (function () {
         //var HOST = '10.143.80.62';
         var HOST = '127.0.0.1';
         var dgram = require('dgram');
-        var message = new Buffer('40,20,36,130,178,41,  Turn OFF Engine');
+        //var message = new Buffer('40,20,36,130,178,41,  Turn OFF Engine');
+
+        //v2
+        var message = new Buffer('0x7B,1,19,0,1,0,12,1,120,249,33,184,63,1,0,0,142,211,0x7D', "ascii");
         var client = dgram.createSocket('udp4');
         client.send(message, 0, message.length, PORT, HOST, function(err, bytes) {
             if (err) throw err;
