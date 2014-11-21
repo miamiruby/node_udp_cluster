@@ -8,7 +8,7 @@ var cl = (function () {
         //var message = new Buffer('40,20,36,130,178,41,  Turn OFF Engine');
 
         //v2
-        var message = new Buffer('123,1,19,0,1,0,12,1,120,249,33,184,63,1,0,0,142,211,125', "binary");
+        var message = new Buffer([123,1,19,0,1,0,12,1,120,249,33,184,63,1,0,0,142,211,125], "binary");
         var client = dgram.createSocket('udp4');
         client.send(message, 0, message.length, PORT, HOST, function(err, bytes) {
             if (err) throw err;
