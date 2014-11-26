@@ -1,4 +1,3 @@
-var ArrayBuffers = require("array-buffers");
 module.exports = {
   crc16: function(msg){
     var packet = []
