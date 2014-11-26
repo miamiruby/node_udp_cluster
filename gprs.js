@@ -1,5 +1,18 @@
 module.exports = {
-  crc16: function(msg){
+  clean_packet: function(packet){
+    //convert packet to array
+    var cleaned_packet = []
+    for(i=0;i<packet.length;i++)
+      cleaned_packet[i] = packet[i]
+    //find first 123 and remove all garbage before it
+    cleaned_packet = cleaned_packet.slice(cleaned_packet.indexOf(123),cleaned_packet.length)
+    //find length of packet and remove garbage at end
+    var length_of_packet = cleaned_packet[2] + (cleaned_packet[3]<<8)
+    cleaned_packet = cleaned_packet.slice(0,length_of_packet)
+
+    return cleaned_packet
+  }
+  , crc16: function(msg){
     var packet = []
     for(i=0;i<msg.length;i++)
       packet[i] = msg[i]
@@ -31,6 +44,7 @@ module.exports = {
     }
   }
   , decrypt: function(message) {
+    message = module.exports.clean_packet(message)
 
     var data = []
     for($i = 7;$i < message.length - 3; $i++)
