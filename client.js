@@ -11,9 +11,10 @@ var cl = (function () {
 
         //var message = new Buffer([123,1,0,0,123,1,19,0,1,0,12,1,120,249,33,184,63,1,0,0,142,211,125], "binary"); //Bad Message -
 
-        var message = new Buffer([1,3,5,123,1,19,0,1,0,12,1,120,249,33,184,63,1,0,0,142,211,125,2,4,5], "binary"); //Bad Message - garbage data before and after
+        //var message = new Buffer([1,3,5,123,1,19,0,1,0,12,1,120,249,33,184,63,1,0,0,142,211,125,2,4,5], "binary"); //Bad Message - garbage data before and after
 
         //var message = new Buffer([123,1,19,0,1,0,12,1,120,249,33,184,63,1,0,0,142,211,125], "binary"); //Good Message - firmware request
+        var message = new Buffer([123,129,27,0,2,16,3,0,4,9,166,238,27,255,23,45,84,201,137,0,0,0,13,0,75,228,125], "binary"); //Good Message - coded_message
         var client = dgram.createSocket('udp4');
         client.send(message, 0, message.length, PORT, HOST, function(err, bytes) {
             if (err) throw err;

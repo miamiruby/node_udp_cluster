@@ -52,6 +52,8 @@ module.exports = {
 
     var commands = module.exports.commands()
 
+    var cmd = message[6]
+
     var action = ''
     if(message[6] >= 0 && message[6] <=12)
       action = commands[message[6]]
@@ -62,25 +64,75 @@ module.exports = {
     for($i = data.length - 2; $i>=0; $i--)
       imei = (imei<<8) + data[$i]
 
+    var prot_flag = (message[1] & 0xF)
+
+    var ack_flag = false
+    if(message[1] & 0x20)
+      var ack_flag = true
+
+    var cellid_flag = false
+    if(message[1] & 0x40)
+      var cellid_flag = true
+
+    var gps_flag = false
+    if(message[1] & 0x80)
+      var gps_flag = true
+
+    var len = message[2] + (message[3]<<8)
+
+    var ref = message[4]
+
+    var flg = message[5]
+
+    var id_length = (message[6]>>6)+1
+    var id_set = []
+    for(i = 0;i<id_length;i++)
+      id_set.push(message[8 + i])
+
+    var id = 0
+    for($i = id_set.length - 1; $i>=0; $i--){
+      id = (id<<8) + id_set[$i]
+    }
+    var data = {}
+
+    data.action = action
+    data.inputs = (message[7]& 0xF)
+    data.outputs = (message[7] & 0x70)>>4
+    data.id = id
+    data.time = ''
+    data.lat = ''
+    data.lng = ''
+    data.alt = ''
+    data.speed = ''
+    data.odometer = ''
+    data.cellid = ''
+    data.cod = ''
+    data.csigs = ''
+    data.ibtn = ''
+    data.bat = ''
+    data.params = ''
+
     var packet = {
-      sop: message[0]
-      , prot: message[1]
-      , len: message[2] + (message[3]<<8)
-      , ref: message[4] + (message[5]<<8)
-      , cmd: message[6]
-      , data: {
-        action: action
-        , imei: imei
-        , type: data[data.length - 1]
-        , crc: message[message.length - 3] + (message[message.length - 2]<<8)
-        //, raw: data
-      }
+        sop: message[0]
+      , prot: prot_flag
+      , ack_flag: ack_flag
+      , cellid_flag: cellid_flag
+      , gps_flag: gps_flag
+      , len: len
+      , ref: ref
+      , flg: flg
+      , cmd: cmd
+      , datalogger: ''
+      , id_length: id_length
+      , id_set: id_set
+      , data: data
       , crc: crc
       , eop: message[message.length - 1]
       //, raw: message
     }
 
     // validate valid packet
+    console.log(packet)
     if(packet.sop == 123 && packet.prot == 1 && packet.eop == 125){
 
       //validate packet was not modified
