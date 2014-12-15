@@ -1,3 +1,5 @@
+var moment = require('moment')
+require('moment-timezone')
 module.exports = {
   clean_packet: function(packet){
     //convert packet to array
@@ -52,7 +54,8 @@ module.exports = {
 
     var commands = module.exports.commands()
 
-    var cmd = message[6]
+    var cmd_position = 6
+    var cmd = message[cmd_position]
 
     var action = ''
     if(message[6] >= 0 && message[6] <=12)
@@ -84,7 +87,24 @@ module.exports = {
 
     var flg = message[5]
 
-    var id_length = (message[6]>>6)+1
+    var headed_south = message[5] & 1
+    var headed_west = message[5] & 2
+
+    if(headed_south == 0)
+      var north_or_south = 'north'
+    else
+      var north_or_south = 'south'
+
+    if(headed_west == 0)
+      var east_or_west = 'east'
+    else
+      var east_or_west = 'west'
+
+    var datalogger = message[6] & 0x20
+
+    var id_position = 8
+    var id_length = (message[cmd_position]>>6)+1
+
     var id_set = []
     for(i = 0;i<id_length;i++)
       id_set.push(message[8 + i])
@@ -93,15 +113,67 @@ module.exports = {
     for($i = id_set.length - 1; $i>=0; $i--){
       id = (id<<8) + id_set[$i]
     }
+
+    var time_position = id_position + id_length
+    var time_length = 4
+    var time_set = [message[time_position]
+      , message[time_position+1]
+      , message[time_position+2]
+      , message[time_position+3]
+    ]
+    //var time_since = parseInt(message[time_position].toString()
+    //  + message[time_position+1].toString()
+    //  + message[time_position+2].toString()
+    //  + message[time_position+3].toString())
+    var time_since = 0
+    for($i = time_set.length - 1; $i>=0; $i--){
+      time_since = (time_since<<8) + id_set[$i]
+    }
+    var time_since = time_set[0]+(time_set[1]<<8)+(time_set[2]<<16)+(time_set[3]<<24)
+    var time = moment([2000, 0, 1])
+      .add(time_since, 'seconds')
+      .tz('America/New_York')
+      .format('ddd MMM DD YYYY HH:mm:ss z');
+    var unixtime = moment([2000, 0, 1])
+      .add(time_since, 'seconds')
+      .tz('America/New_York')
+      .format('x');//'ddd MMM DD YYYY HH:mm:ss z');
+
+    var lat_position = time_position + time_length
+    var lat_length = 3
+    var lat_set = [message[lat_position]
+      , message[lat_position+1]
+      , message[lat_position+2]
+    ]
+    var lat = ''
+    for($i = lat_set.length - 1; $i>=0; $i--){
+      lat = (lat<<8) + lat_set[$i]
+    }
+    var lat = (lat/3600/32).toFixed(6)
+
+    var lng_position = lat_position + lat_length
+    var lng_length = 3
+    var lng_set = [message[lng_position]
+      , message[lng_position+1]
+      , message[lng_position+2]
+    ]
+    var lng = ''
+    for($i = lng_set.length - 1; $i>=0; $i--){
+      lng = (lng<<8) + lng_set[$i]
+    }
+    var lng = ((lng/3600)/25).toFixed(6)
+
+
     var data = {}
 
     data.action = action
     data.inputs = (message[7]& 0xF)
     data.outputs = (message[7] & 0x70)>>4
     data.id = id
-    data.time = ''
-    data.lat = ''
-    data.lng = ''
+    data.time = time
+    data.unixtime = unixtime
+    data.lat = lat
+    data.lng = lng
     data.alt = ''
     data.speed = ''
     data.odometer = ''
@@ -122,9 +194,18 @@ module.exports = {
       , ref: ref
       , flg: flg
       , cmd: cmd
-      , datalogger: ''
+      , datalogger: datalogger
       , id_length: id_length
+      , id_position: id_position
       , id_set: id_set
+      , time_position: time_position
+      , time_set: time_set
+      , time_since: time_since
+      , lat_set: lat_set
+      , lng_set: lng_set
+      , headed_south: headed_south
+      , north_or_south: north_or_south
+      , east_or_west: east_or_west
       , data: data
       , crc: crc
       , eop: message[message.length - 1]
