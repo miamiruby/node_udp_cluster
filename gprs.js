@@ -163,6 +163,18 @@ module.exports = {
     }
     var lng = ((lng/3600)/25).toFixed(6)
 
+    var alt_position = lng_position + lng_length
+    var alt_length = 2
+    var alt_set = [message[alt_position]
+      , message[alt_position+1]
+    ]
+    var alt = ''
+    for($i = alt_set.length - 1; $i>=0; $i--){
+      alt = (alt<<8) + alt_set[$i]
+    }
+
+    var speed_position = alt_position + alt_length
+    var speed = message[speed_position]
 
     var data = {}
 
@@ -174,8 +186,8 @@ module.exports = {
     data.unixtime = unixtime
     data.lat = lat
     data.lng = lng
-    data.alt = ''
-    data.speed = ''
+    data.alt = alt
+    data.speed = speed
     data.odometer = ''
     data.cellid = ''
     data.cod = ''
@@ -203,6 +215,7 @@ module.exports = {
       , time_since: time_since
       , lat_set: lat_set
       , lng_set: lng_set
+      , alt_set: alt_set
       , headed_south: headed_south
       , north_or_south: north_or_south
       , east_or_west: east_or_west
