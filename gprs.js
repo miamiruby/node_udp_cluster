@@ -196,7 +196,34 @@ module.exports = {
       }
       var next_position = next_position + odometer_length
     }
-    console.log(next_position)
+
+    cellid_set = []
+    var cellid = ''
+    var cellid_length = 4
+    if(cellid_flag == true){
+      cellid_set = [message[next_position]
+        , message[next_position+1]
+        , message[next_position+2]
+        , message[next_position+3]
+      ]
+      for($i = cellid_set.length - 1; $i>=0; $i--){
+        cellid = (cellid<<8) + cellid_set[$i]
+      }
+      var next_position = next_position + cellid_length
+    }
+
+    var cod = ''
+    var cod_length = 1
+    if(cmd == 3 || cmd == 9){
+      cod = message[next_position]
+      var next_position = next_position + cod_length
+    }
+
+    var temp = ''
+    var temp_length = 1
+    temp = message[next_position]
+    next_position = next_position + temp_length
+
 
     var data = {}
     data.action = action
@@ -209,12 +236,10 @@ module.exports = {
     data.lng = lng
     data.alt = alt
     data.speed = speed
-    if(odometer_flag)
-      data.odometer = odometer
-    else
-      data.odometer = ''
-    data.cellid = ''
-    data.cod = ''
+    data.odometer = odometer
+    data.cellid = cellid
+    data.cod = cod
+    data.temp = temp
     data.csigs = ''
     data.ibtn = ''
     data.bat = ''
@@ -242,6 +267,7 @@ module.exports = {
       , lng_set: lng_set
       , alt_set: alt_set
       , odometer_set: odometer_set
+      , cellid_set: cellid_set
       , headed_south: headed_south
       , north_or_south: north_or_south
       , east_or_west: east_or_west
@@ -271,6 +297,6 @@ module.exports = {
     return results
   },
   encrypt: function(hash) {
-    return '40 22 44 55 66 77 23 44 13'
+    return [123,129,27,0,2,16,3,0,4,9,166,238,27,255,23,45,84,201,137,0,0,0,13,0,75,228,125]
   }
 }
