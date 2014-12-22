@@ -87,6 +87,10 @@ module.exports = {
 
     var flg = message[5]
 
+    var odometer_flag = false
+    if(flg & 0x4)
+      odometer_flag = true
+
     var headed_south = message[5] & 1
     var headed_west = message[5] & 2
 
@@ -174,10 +178,27 @@ module.exports = {
     }
 
     var speed_position = alt_position + alt_length
+    var speed_length = 1
     var speed = message[speed_position]
+    var next_position = speed_position + speed_length
+
+    odometer_set = []
+    var odometer = ''
+    if(odometer_flag == true){
+      var odometer_length = 4
+      odometer_set = [message[next_position]
+        , message[next_position+1]
+        , message[next_position+2]
+        , message[next_position+3]
+      ]
+      for($i = odometer_set.length - 1; $i>=0; $i--){
+        odometer = (odometer<<8) + odometer_set[$i]
+      }
+      var next_position = next_position + odometer_length
+    }
+    console.log(next_position)
 
     var data = {}
-
     data.action = action
     data.inputs = (message[7]& 0xF)
     data.outputs = (message[7] & 0x70)>>4
@@ -188,7 +209,10 @@ module.exports = {
     data.lng = lng
     data.alt = alt
     data.speed = speed
-    data.odometer = ''
+    if(odometer_flag)
+      data.odometer = odometer
+    else
+      data.odometer = ''
     data.cellid = ''
     data.cod = ''
     data.csigs = ''
@@ -202,6 +226,7 @@ module.exports = {
       , ack_flag: ack_flag
       , cellid_flag: cellid_flag
       , gps_flag: gps_flag
+      , odometer_flag: odometer_flag
       , len: len
       , ref: ref
       , flg: flg
@@ -216,6 +241,7 @@ module.exports = {
       , lat_set: lat_set
       , lng_set: lng_set
       , alt_set: alt_set
+      , odometer_set: odometer_set
       , headed_south: headed_south
       , north_or_south: north_or_south
       , east_or_west: east_or_west
