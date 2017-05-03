@@ -1,4 +1,4 @@
-guarddog_gateway
+Node UDP GPS Cluster
 ================
 
 To Setup run..
